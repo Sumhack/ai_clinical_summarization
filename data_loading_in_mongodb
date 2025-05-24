@@ -1,0 +1,31 @@
+
+import json
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+
+uri = "mongodb+srv://sumhack:rE0tJe5HpvVOPfeZ@experiment.hnfix.mongodb.net/?retryWrites=true&w=majority&appName=experiment"
+
+# Create a new client and connect to the server
+client = MongoClient(uri, server_api=ServerApi('1'))
+
+# Send a ping to confirm a successful connection
+try:
+    client.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
+
+db = client["ehr_database"]  # Database name
+collection = db["patients"]  # Collection name
+
+# Load synthetic EHR data from JSON file
+with open("synthetic_ehr_data.json", "r") as f:
+    patients = json.load(f)
+
+# Insert data into MongoDB Atlas
+collection.insert_many(patients)
+
+# Fetch and print one record to verify
+sample_patient = collection.find_one()
+print("✅ Data inserted successfully! Sample Record:")
+print(sample_patient)
